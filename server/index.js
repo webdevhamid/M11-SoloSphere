@@ -29,11 +29,19 @@ async function run() {
     // Create a database and collection for testing purposes
     const database = client.db("soloSphereDB");
     const jobCollection = database.collection("jobs");
+    const bidCollection = database.collection("bids");
 
     // get all jobs  (GET endpoint)
     app.get("/jobs", async (req, res) => {
       const jobs = await jobCollection.find().toArray();
       res.send(jobs);
+    });
+
+    // post bid
+    app.post("/bid", async (req, res) => {
+      const bid = req.body;
+      const result = await bidCollection.insertOne(bid);
+      res.send(result);
     });
 
     // get all posted jobs of a specific user
@@ -60,7 +68,7 @@ async function run() {
     });
 
     // update a job (job/:id)
-    app.patch("/job/:id", async (req, res) => {
+    app.put("/job/:id", async (req, res) => {
       const { jobId, jobTitle, email, deadline, category, minPrice, maxPrice, description } =
         req.body;
 
