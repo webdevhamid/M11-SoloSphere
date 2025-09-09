@@ -38,7 +38,7 @@ const UpdateJob = () => {
       description,
     };
 
-    const response = await axios.patch(`${import.meta.env.VITE_API_URL}/job/${_id}`, updatedJob);
+    const response = await axios.put(`${import.meta.env.VITE_API_URL}/job/${_id}`, updatedJob);
 
     toast.success("Updated successfully!");
 
