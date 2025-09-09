@@ -6,9 +6,11 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 const app = express();
 
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
+// Cluster URI
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.w1xw1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -26,10 +28,15 @@ async function run() {
     await client.connect();
 
     // Main application logic goes here
-    // Create a database and collection for testing purposes
+    // Create a database and make collection for testing purpose
     const database = client.db("soloSphereDB");
     const jobCollection = database.collection("jobs");
     const bidCollection = database.collection("bids");
+
+    app.get("/bids", async (req, res) => {
+      const bids = await bidCollection.find().toArray();
+      res.send(bids);
+    });
 
     // get all jobs  (GET endpoint)
     app.get("/jobs", async (req, res) => {
@@ -37,10 +44,36 @@ async function run() {
       res.send(jobs);
     });
 
-    // post bid
+    // post bid  (post endpoint)
     app.post("/bid", async (req, res) => {
       const bid = req.body;
       const result = await bidCollection.insertOne(bid);
+      res.send(result);
+    });
+
+    // get bids
+    app.get("/bid/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await bidCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // Update bid (PUT Endpoint)
+    app.put("/bid/:id", async (req, res) => {
+      const bidId = req.params.id;
+      const { price, comment, deadline } = req.body;
+
+      const filter = { _id: new ObjectId(bidId) };
+      const updateBid = {
+        $set: {
+          price,
+          comment,
+          deadline,
+        },
+      };
+
+      const result = await bidCollection.updateOne(filter, updateBid);
       res.send(result);
     });
 
@@ -59,6 +92,7 @@ async function run() {
       const result = await jobCollection.findOne(query);
       res.send(result);
     });
+
     // delete a job
     app.delete("/job/:id", async (req, res) => {
       const id = req.params.id;
