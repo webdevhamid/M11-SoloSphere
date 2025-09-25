@@ -30,46 +30,67 @@ const JobDetails = () => {
   };
 
   const handleBidSubmit = async (e) => {
+    // Prevent the default browser behavior
     e.preventDefault();
+
+    console.log(startDate);
+
+    // Get the targeted input values
     const form = e.target;
     const price = parseInt(form.price.value);
-    const email = form.email.value;
+    const email = user?.email;
     const comment = form.comment.value;
     const deadline = startDate;
     const jobId = id;
+    const title = job.jobTitle;
+    const category = job.category;
+    const status = "Pending";
+    const buyer = job.buyer.email;
 
-    const bid = {
+    console.log(price);
+
+    const bidData = {
+      title,
       price,
       email,
       comment,
       deadline,
       jobId,
+      category,
+      status,
+      buyer,
     };
 
-    // User bid permission validation
-    if (user?.email === job?.buyer?.email) return toast.error("Action is not permitted!");
+    // User's bid permission validation
+    if (user?.email === job?.buyer?.email) return toast.error("You cannot apply for this job!");
 
     // Bid's Deadline validation check
     if (compareAsc(new Date(), new Date(job.deadline)) === 1)
       return toast.error("Deadline expired, bid forbidden!");
 
     // Validate bid price
-    if (price > job.maxPrice) return toast.error("Max price cannot be exceeded!");
+    if (parseInt(job.maxPrice) < price || parseInt(job.minPrice) > price)
+      return toast.error("price cannot exceed or recede!");
 
-    // validate, bidding deadline should not be exceeded from the buyer deadline
+    // validate that bidding deadline should not be exceeded from the buyer deadline
     if (compareAsc(new Date(startDate), new Date(job.deadline)) === 1)
       return toast.error("Deadline cannot exceed!");
 
     // Add new bid to the database
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/bid`, bid);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/add-bid`, bidData);
       console.log(response.data);
-      toast.success("Submitted Successfully");
-      form.reset();
-      navigate("/my-bids");
+      console.log(response);
+      if (response.data.acknowledged) {
+        toast.success("Submitted Successfully");
+        form.reset();
+        navigate("/my-bids");
+      } else {
+        toast.error(response.data);
+      }
     } catch (err) {
       console.log(err);
-      toast.error(err.message);
+      toast.error(err?.response?.data);
     }
   };
 
@@ -146,6 +167,7 @@ const JobDetails = () => {
                 id="comment"
                 name="comment"
                 type="text"
+                required
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md   focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring"
               />
             </div>

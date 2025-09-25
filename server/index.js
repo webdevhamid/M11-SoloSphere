@@ -44,10 +44,68 @@ async function run() {
       res.send(jobs);
     });
 
-    // post bid  (post endpoint)
-    app.post("/bid", async (req, res) => {
+    // place a new bid  (post endpoint)
+    app.post("/add-bid", async (req, res) => {
+      // Get the bid data
       const bid = req.body;
+
+      // Check If the user has already placed a bid on this job
+      const duplicateBidFilter = { jobId: bid.jobId, email: bid.email };
+      const checkDuplicateBid = await bidCollection.findOne(duplicateBidFilter);
+
+      // Return immediately if there is a duplicate bid
+      if (checkDuplicateBid)
+        return res.status(400).send("You already have placed bid on this job!");
+
+      // If everything is fine, then insert the bid
       const result = await bidCollection.insertOne(bid);
+
+      // Increment Bid Count in jobs collection
+      const filter = { _id: new ObjectId(bid.jobId) };
+      const updateBid = {
+        $inc: {
+          bidCount: 1,
+        },
+      };
+      const updateBidCount = await jobCollection.updateOne(filter, updateBid);
+
+      res.send(result);
+    });
+
+    // Get all bids and 'bid requests' for a user (get Endpoint)
+    app.get("/my-bids/:email", async (req, res) => {
+      // get the buyer query
+      const isBuyer = req.query.buyer;
+      // get the email parameter
+      const email = req.params.email;
+      const query = {};
+      // Check if isBuyer is true
+      if (isBuyer) {
+        // add buyer property to the query obj
+        query.buyer = email;
+      } else {
+        // add email property to the query obj
+        query.email = email;
+      }
+      // get the result from bidCollection
+      const result = await bidCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // Update "bid requests" status
+    app.patch("/update-bid-request/:id", async (req, res) => {
+      // Get the ID
+      const id = req.params.id;
+
+      // New updated Status from the client
+      const { newStatus } = req.body;
+
+      // update the DB status
+      const filter = { _id: new ObjectId(id) };
+      const update = {
+        $set: { status: newStatus },
+      };
+      const result = await bidCollection.updateOne(filter, update);
       res.send(result);
     });
 
