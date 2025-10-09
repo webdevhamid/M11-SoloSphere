@@ -1,15 +1,33 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { AuthContext } from "../providers/AuthProvider";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import useAuth from "./../hooks/useAuth";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const AddJob = () => {
   const [startDate, setStartDate] = useState(new Date());
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+
+  const { isPending, mutateAsync } = useMutation({
+    mutationFn: async (formData) => {
+      // Add a new job (post request)
+      await axiosSecure.post(`/add-job`, formData);
+    },
+    onSuccess: async () => {
+      console.log("Job added successfully!");
+      // Invalidating "jobs" query in order to refetching the new data from the server
+      await queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +59,7 @@ const AddJob = () => {
 
     try {
       // Add a new job (post request)
-      await axios.post(`${import.meta.env.VITE_API_URL}/add-job`, formData);
+      await mutateAsync(formData);
       // Reset form data
       form.reset();
       // Show toast message
@@ -67,6 +85,7 @@ const AddJob = () => {
                 id="job_title"
                 name="job_title"
                 type="text"
+                required
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring"
               />
             </div>
@@ -110,6 +129,7 @@ const AddJob = () => {
                 Minimum Price
               </label>
               <input
+                required
                 id="min_price"
                 name="min_price"
                 type="number"
@@ -122,6 +142,7 @@ const AddJob = () => {
                 Maximum Price
               </label>
               <input
+                required
                 id="max_price"
                 name="max_price"
                 type="number"
@@ -137,11 +158,12 @@ const AddJob = () => {
               className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring"
               name="description"
               id="description"
+              required
             ></textarea>
           </div>
           <div className="flex justify-end mt-6">
             <button className="disabled:cursor-not-allowed px-8 py-2.5 leading-5 text-white transition-colors duration-300 transhtmlForm bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:bg-gray-600">
-              Save
+              {isPending ? "Saving..." : "Save"}
             </button>
           </div>
         </form>

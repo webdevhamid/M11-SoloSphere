@@ -1,10 +1,13 @@
 import axios from "axios";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../providers/AuthProvider";
+import { useEffect, useState } from "react";
 import BidRequestsTable from "../components/BidRequestsTable";
+import { toast } from "react-hot-toast";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAuth from "../hooks/useAuth";
 
 const BidRequests = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const [bidRequests, setBidRequests] = useState([]);
 
   useEffect(() => {
@@ -14,9 +17,7 @@ const BidRequests = () => {
 
   const fetchBidRequests = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/my-bids/${user?.email}?buyer=true`
-      );
+      const response = await axiosSecure.get(`/my-bids/${user?.email}?buyer=true`);
       setBidRequests(response.data);
     } catch (err) {
       console.log(err);
@@ -36,13 +37,13 @@ const BidRequests = () => {
         }
       );
       console.log(data);
+      toast.success(`Status changed to ${newStatus}`);
       fetchBidRequests();
     } catch (err) {
       console.log(err);
     }
   };
 
-  console.log(bidRequests);
   return (
     <section className="container px-4 mx-auto my-12">
       <div className="flex items-center gap-x-3">

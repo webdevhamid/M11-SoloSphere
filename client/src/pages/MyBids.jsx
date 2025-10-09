@@ -1,10 +1,13 @@
 import axios from "axios";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../providers/AuthProvider";
+import { useEffect, useState } from "react";
 import BidTableRow from "../components/BidTableRow";
+import toast from "react-hot-toast";
+import useAuth from "../hooks/useAuth";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const MyBids = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const [bids, setBids] = useState([]);
 
   useEffect(() => {
@@ -14,7 +17,7 @@ const MyBids = () => {
 
   const fetchBids = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/my-bids/${user?.email}`);
+      const response = await axiosSecure.get(`/my-bids/${user?.email}`);
       setBids(response.data);
     } catch (err) {
       console.log(err);
@@ -36,6 +39,7 @@ const MyBids = () => {
         { newStatus }
       );
       console.log(data);
+      toast.success(`Status changed to ${newStatus}`);
       fetchBids();
     } catch (err) {
       console.log(err);

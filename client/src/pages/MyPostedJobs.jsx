@@ -1,38 +1,37 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AuthContext } from "./../providers/AuthProvider";
-import axios from "axios";
 import { format } from "date-fns";
 import { toast } from "react-hot-toast";
+import useAuth from "../hooks/useAuth";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const MyPostedJobs = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const [jobs, setJobs] = useState([]);
   console.log(user);
 
+  useEffect(() => {
+    // only call it when user.email exists
+    fetchMyPostedJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email]);
+
   const fetchMyPostedJobs = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/jobs/${user.email}`);
+      const response = await axiosSecure.get(`/jobs/${user?.email}`);
       setJobs(response.data);
     } catch (err) {
       console.log(err);
     }
   };
 
-  useEffect(() => {
-    // only call it when user.email exists
-    if (user.email) {
-      fetchMyPostedJobs();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user.email]);
-
   console.log(jobs);
 
   // Delete a job
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/job/${id}`);
+      const response = await axiosSecure.delete(`/job/${id}`);
       console.log(response);
 
       // Show success toast message
