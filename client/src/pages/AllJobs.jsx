@@ -47,8 +47,8 @@ const AllJobs = () => {
 
   // Pagination settings
   const numberOfPages = Math.ceil(jobs.length / 5);
-  console.log(numberOfPages);
-  console.log(jobs.length);
+  // console.log(numberOfPages);
+  // console.log(jobs.length);
   const handlePrevButton = () => {
     console.log("prev button clicked");
   };

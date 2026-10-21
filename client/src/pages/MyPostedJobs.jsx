@@ -9,7 +9,7 @@ const MyPostedJobs = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const [jobs, setJobs] = useState([]);
-  console.log(user);
+  // console.log(user);
 
   useEffect(() => {
     // only call it when user.email exists
@@ -26,13 +26,13 @@ const MyPostedJobs = () => {
     }
   };
 
-  console.log(jobs);
+  // console.log(jobs);
 
   // Delete a job
   const handleDelete = async (id) => {
     try {
       const response = await axiosSecure.delete(`/job/${id}`);
-      console.log(response);
+      // console.log(response);
 
       // Show success toast message
       toast.success("Job deleted successfully!");
@@ -45,7 +45,7 @@ const MyPostedJobs = () => {
   };
 
   const confirmDelete = (id) => {
-    console.log(id);
+    // console.log(id);
     toast((t) => (
       <div className="flex items-center gap-3">
         <div className="">

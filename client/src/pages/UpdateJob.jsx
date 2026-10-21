@@ -42,7 +42,7 @@ const UpdateJob = () => {
 
     toast.success("Updated successfully!");
 
-    console.log(response.data);
+    // console.log(response.data);
     navigate("/my-posted-jobs");
   };
 

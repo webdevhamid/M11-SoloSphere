@@ -33,7 +33,7 @@ const JobDetails = () => {
     // Prevent the default browser behavior
     e.preventDefault();
 
-    console.log(startDate);
+    // console.log(startDate);
 
     // Get the targeted input values
     const form = e.target;
@@ -47,7 +47,7 @@ const JobDetails = () => {
     const status = "Pending";
     const buyer = job.buyer.email;
 
-    console.log(price);
+    // console.log(price);
 
     const bidData = {
       title,
@@ -79,8 +79,8 @@ const JobDetails = () => {
     // Add new bid to the database
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/add-bid`, bidData);
-      console.log(response.data);
-      console.log(response);
+      // console.log(response.data);
+      // console.log(response);
       if (response.data.acknowledged) {
         toast.success("Submitted Successfully");
         form.reset();

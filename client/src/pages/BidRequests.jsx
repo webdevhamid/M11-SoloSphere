@@ -36,7 +36,7 @@ const BidRequests = () => {
           newStatus,
         }
       );
-      console.log(data);
+      // console.log(data);
       toast.success(`Status changed to ${newStatus}`);
       fetchBidRequests();
     } catch (err) {

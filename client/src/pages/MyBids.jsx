@@ -24,10 +24,10 @@ const MyBids = () => {
     }
   };
 
-  console.log(bids);
+  // console.log(bids);
 
   const handleChangeStatus = async (id, prevStatus, newStatus) => {
-    console.log({ id, prevStatus, newStatus });
+    // console.log({ id, prevStatus, newStatus });
 
     if (prevStatus !== "In progress") {
       return console.log("not allowed");
@@ -38,7 +38,7 @@ const MyBids = () => {
         `${import.meta.env.VITE_API_URL}/update-bid-request/${id}`,
         { newStatus }
       );
-      console.log(data);
+      // console.log(data);
       toast.success(`Status changed to ${newStatus}`);
       fetchBids();
     } catch (err) {

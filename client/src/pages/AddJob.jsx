@@ -55,7 +55,7 @@ const AddJob = () => {
       description,
       bidCount,
     };
-    console.log(formData);
+    // console.log(formData);
 
     try {
       // Add a new job (post request)

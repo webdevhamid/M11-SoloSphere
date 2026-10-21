@@ -16,11 +16,11 @@ const Registration = () => {
     const name = form.name.value;
     const photo = form.photo.value;
     const pass = form.password.value;
-    console.log({ email, pass, name, photo });
+    // console.log({ email, pass, name, photo });
     try {
       //2. User Registration
       const result = await createUser(email, pass);
-      console.log(result);
+      // console.log(result);
       await updateUserProfile(name, photo);
       setUser({ ...result.user, photoURL: photo, displayName: name });
       toast.success("Signup Successful");
